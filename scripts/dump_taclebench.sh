@@ -3,9 +3,8 @@
 
 TACLE_BENCH_DIR=$(pwd)/tacle-bench/bench
 
-BENCH=${1:-all}
-ARCH=${2:-rv32im}
-# ARCH=${2:-rv32im_xcvmac_xcvmem_xcvalu_xcvbitmanip_xcvsimd_xcvhwlp}
+SIM=${1:-ovpsim}
+BENCH=${2:-all}
 
 export CLANG=$(pwd)/corev-llvm-project/build/bin/clang
 export GCC=$(pwd)/rv32im2_ilp32/bin/riscv32-unknown-elf-gcc
@@ -16,23 +15,23 @@ export COL=2
 
 
 function dump() {
-    BENCH_NAME=$1
+    SIM=$1
+    BENCH_NAME=$2
     BENCH_DIR=$TACLE_BENCH_DIR/$BENCH_NAME
-    ARCH=$2
     echo "======================="
     echo "Benchmark: $BENCH_NAME"
-    echo ""Directory: $BENCH_DIR
+    echo "Directory: $BENCH_DIR"
+    echo "Simulator: $SIM"
     echo "-----------------------"
     cd $BENCH_DIR
     echo "Dumping..."
-    echo $OBJDUMP -d program.elf
-    $OBJDUMP -d program.elf > program.dump
-    cat program.dump | cut -f $COL | sort | uniq -c | sort -h > program.counts
-    cat program.counts | grep "cv\." > program.cvcounts
-    cat program.cvcounts
+    $OBJDUMP -d $SIM.elf > $SIM.dump
+    cat $SIM.dump | cut -f $COL | grep -v "<" | grep -v "Disassembly" | grep -v "file format" | sed '/^$/d' | sort | uniq -c | sort -h > $SIM.counts
+    cat $SIM.counts | grep "cv\." > $SIM.cvcounts
+    cat $SIM.cvcounts
     echo "Done."
     echo "======================="
-    cd -
+    cd - > /dev/null
 }
 
 if [[ "$BENCH" == "all" ]]
@@ -47,5 +46,5 @@ fi
 
 for bench in "${BENCHMARKS[@]}"
 do
-    dump $bench
+    dump $SIM $bench
 done
