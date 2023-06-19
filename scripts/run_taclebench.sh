@@ -7,9 +7,8 @@ SIM=${1:-ovpsim}
 BENCH=${2:-all}
 
 export EXTRA_DIR=$(pwd)/extra
-export OVPSIM=$(pwd)/riscv-ovpsim-corev-20230425/bin/Linux64/riscvOVPsimCOREV.exe
-export ETISS=$(pwd)/etiss/build/bin/run_helper.sh
-
+DEFAULT_OVPSIM=$(pwd)/install/ovpsim/bin/Linux64/riscvOVPsimCOREV.exe
+export OVPSIM=${OVPSIM:-$DEFAULT_OVPSIM}
 
 function common_run() {
     SIM=$1
@@ -49,6 +48,12 @@ function ovpsim_run() {
 }
 
 function etiss_run() {
+    if [[ ! -f $ETISS ]]
+    then
+        echo "ETISS enviornment variable not set!"
+        exit 1
+    fi
+
     TIMEOUT=90
     echo timeout --foreground $TIMEOUT $ETISS etiss.elf -i$EXTRA_DIR/memsegs.ini
     timeout --foreground $TIMEOUT $ETISS etiss.elf -i$EXTRA_DIR/memsegs.ini > etiss_out.txt 2> etiss_err.txt

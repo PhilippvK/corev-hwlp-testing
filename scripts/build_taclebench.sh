@@ -9,11 +9,12 @@ BENCH=${2:-all}
 ARCH=${3:-rv32im}
 # ARCH=${2:-rv32im_xcvmac_xcvmem_xcvalu_xcvbitmanip_xcvsimd_xcvhwlp}
 
-export CLANG=$(pwd)/corev-llvm-project/build/bin/clang
-# export GCC=$(pwd)/rv32im2_ilp32/bin/riscv32-unknown-elf-gcc
-export GCC=$(pwd)/rv32im3_ilp32/bin/riscv32-unknown-elf-gcc
-export GCC_TOOLCHAIN=$(pwd)/rv32im3_ilp32
-export SYSROOT=$(pwd)/rv32im3_ilp32/riscv32-unknown-elf
+DEFAULT_CLANG=$(pwd)/install/llvm/bin/clang
+export CLANG=${CLANG:-$DEFAULT_CLANG}
+DEFAULT_GCC=$(pwd)/install/rv32im_ilp32/bin/riscv32-unknown-elf-gcc
+export GCC=${GCC:-$DEFAULT_GCC}
+export GCC_TOOLCHAIN=$(dirname $(dirname $GCC))
+export SYSROOT=$GCC_TOOLCHAIN/$(basename $GCC | cut -d- -f1-3)
 # export GCC=$(pwd)/corev-openhw-gcc-ubuntu2004-20230504/bin/riscv32-corev-elf-gcc
 # export GCC_TOOLCHAIN=$(pwd)/corev-openhw-gcc-ubuntu2004-20230504/
 # export SYSROOT=$(pwd)/corev-openhw-gcc-ubuntu2004-20230504/riscv32-corev-elf

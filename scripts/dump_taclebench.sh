@@ -6,11 +6,9 @@ TACLE_BENCH_DIR=$(pwd)/tacle-bench/bench
 SIM=${1:-ovpsim}
 BENCH=${2:-all}
 
-export CLANG=$(pwd)/corev-llvm-project/build/bin/clang
-export GCC=$(pwd)/rv32im2_ilp32/bin/riscv32-unknown-elf-gcc
-# export OBJDUMP=$(pwd)/corev-openhw-gcc-ubuntu2004-20230504/bin/riscv32-corev-elf-objdump
-# export COL=3
-export OBJDUMP="$(pwd)/./corev-llvm-project/build/bin/llvm-objdump --mattr=+xcvmac,+xcvmem,+xcvbi,+xcvalu,+xcvbitmanip,+xcvsimd,+xcvhwlp"
+DEFAULT_OBJDUMP=$(pwd)/install/llvm/bin/llvm-objdump
+OBJDUMP_ARGS="--mattr=+xcvmac,+xcvmem,+xcvbi,+xcvalu,+xcvbitmanip,+xcvsimd,+xcvhwlp"
+export OBJDUMP=${OBJDUMP:-$DEFAULT_OBJDUMP}
 export COL=2
 
 
@@ -25,7 +23,7 @@ function dump() {
     echo "-----------------------"
     cd $BENCH_DIR
     echo "Dumping..."
-    $OBJDUMP -d $SIM.elf > $SIM.dump
+    $OBJDUMP $OBJDUMP_ARGS -d $SIM.elf > $SIM.dump
     cat $SIM.dump | cut -f $COL | grep -v "<" | grep -v "Disassembly" | grep -v "file format" | sed '/^$/d' | sort | uniq -c | sort -h > $SIM.counts
     cat $SIM.counts | grep "cv\." > $SIM.cvcounts
     cat $SIM.cvcounts
