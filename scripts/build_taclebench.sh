@@ -8,6 +8,7 @@ SIM=${1:-ovpsim}
 BENCH=${2:-all}
 ARCH=${3:-rv32im}
 # ARCH=${2:-rv32im_xcvmac_xcvmem_xcvalu_xcvbitmanip_xcvsimd_xcvhwlp}
+MODE=${4:-release}
 
 DEFAULT_CLANG=$(pwd)/install/llvm/bin/clang
 export CLANG=${CLANG:-$DEFAULT_CLANG}
@@ -24,14 +25,30 @@ function common_build() {
     BENCH_NAME=$2
     BENCH_DIR=$TACLE_BENCH_DIR/$BENCH_NAME
     ARCH=$3
+    MODE=$4
     echo "======================="
     echo "Benchmark: $BENCH_NAME"
     echo "Directory: $BENCH_DIR"
     echo "Simulator: $SIM"
     echo "-----------------------"
     cd $BENCH_DIR
+    EXTRA_ARGS=""
+    if [[ "$MODE" == "release" ]]
+    then
+        OPT="3"
+    elif [[ "$MODE" == "size" ]]
+    then
+        OPT="s"
+    elif [[ "$MODE" == "debug" ]]
+    then
+        OPT="0"
+        EXTRA_ARGS="$EXTRA_ARGS -g"
+    else
+        echo "Invalid mode: $MODE"
+        return 1
+    fi
     echo "Compiling..."
-    $CLANG *.c -march=$ARCH -mabi=ilp32 -O3 -c --target=riscv32 --gcc-toolchain=$GCC_TOOLCHAIN --sysroot=$SYSROOT
+    $CLANG *.c -march=$ARCH -mabi=ilp32 -O$OPT -c --target=riscv32 --gcc-toolchain=$GCC_TOOLCHAIN --sysroot=$SYSROOT $EXTRA_ARGS
     echo "Linking..."
     ${SIM}_link
     echo "Done."
@@ -59,5 +76,5 @@ fi
 
 for bench in "${BENCHMARKS[@]}"
 do
-    common_build $SIM $bench $ARCH
+    common_build $SIM $bench $ARCH $MODE
 done
