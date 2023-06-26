@@ -49,8 +49,10 @@ A recent version of ETISS is required (with semihosting support and RV32IM[ACFD]
 
 ### Misc
 
+Optional!
+
 ```sh
 ./scripts/dump_taclebench.sh [ovpsim|etiss] [all|sequential/petrinet|...]
-./scripts/clean_taclebench.sh
 tail tacle-bench/bench/*/*/*_instructions.txt
+./scripts/clean_taclebench.sh
 ```
