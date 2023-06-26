@@ -10,6 +10,8 @@ TRACE=${3:-notrace}
 export EXTRA_DIR=$(pwd)/extra
 DEFAULT_OVPSIM=$(pwd)/install/ovpsim/bin/Linux64/riscvOVPsimCOREV.exe
 export OVPSIM=${OVPSIM:-$DEFAULT_OVPSIM}
+DEFAULT_ETISS_INI=$EXTRA_DIR/memsegs.ini
+ETISS_INI=${ETISS_INI:-$DEFAULT_ETISS_INI}
 
 common_run() {
     SIM=$1
@@ -70,7 +72,7 @@ function etiss_run() {
     fi
 
     TIMEOUT=90
-    timeout --foreground $TIMEOUT $ETISS etiss.elf -i$EXTRA_DIR/memsegs.ini $EXTR_ARGS > etiss_out.txt 2> etiss_err.txt
+    timeout --foreground $TIMEOUT $ETISS etiss.elf -i$ETISS_INI $EXTR_ARGS > etiss_out.txt 2> etiss_err.txt
     echo $? > etiss_exit.txt
     cat etiss_out.txt | sed -rn 's/CPU Cycles \(estimated\): (.*)$/\1/p' > etiss_instructions.txt
     echo "" > etiss_notes.txt
