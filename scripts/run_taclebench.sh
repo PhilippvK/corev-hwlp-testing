@@ -5,14 +5,16 @@ TACLE_BENCH_DIR=$(pwd)/tacle-bench/bench
 
 SIM=${1:-ovpsim}
 BENCH=${2:-all}
+TRACE=${3:-notrace}
 
 export EXTRA_DIR=$(pwd)/extra
 DEFAULT_OVPSIM=$(pwd)/install/ovpsim/bin/Linux64/riscvOVPsimCOREV.exe
 export OVPSIM=${OVPSIM:-$DEFAULT_OVPSIM}
 
-function common_run() {
+common_run() {
     SIM=$1
     BENCH_NAME=$2
+    TRACE=$3
     BENCH_DIR=$TACLE_BENCH_DIR/$BENCH_NAME
     echo "======================="
     echo "Benchmark: $BENCH_NAME"
@@ -24,9 +26,9 @@ function common_run() {
     if [[ ! -f "$SIM.elf" ]]
     then
         echo "ELF not found!"
-        exit 1
+        return 0
     fi
-    ${SIM}_run
+    ${SIM}_run $TRACE
     echo "EXIT=$(cat ${SIM}_exit.txt)"
     echo "INSTRUCTIONS=$(cat ${SIM}_instructions.txt)"
     echo "#lines $(wc -l ${SIM}_out.txt)" >> ${SIM}_notes.txt
@@ -39,7 +41,14 @@ function common_run() {
 
 function ovpsim_run() {
     TIMEOUT=90
-    timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --finishonopcode 0 > ovpsim_out.txt 2> ovpsim_err.txt
+    TRACE=$1
+    EXTRA_ARGS=""
+    if [[ "$TRACE" == "trace" ]]
+    then
+        EXTRA_ARGS="$EXTRA_ARGS --trace --tracefile ovpsim_trace.txt"
+    fi
+
+    timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --finishonopcode 0 $EXTRA_ARGS > ovpsim_out.txt 2> ovpsim_err.txt
     echo $? > ovpsim_exit.txt
     cat ovpsim_out.txt | sed -rn 's/Info   Simulated instructions: (.*)$/\1/p' | sed 's/,//g' > ovpsim_instructions.txt
     echo "" > ovpsim_notes.txt
@@ -53,10 +62,15 @@ function etiss_run() {
         echo "ETISS enviornment variable not set!"
         exit 1
     fi
+    TRACE=$1
+    EXTRA_ARGS=""
+    if [[ "$TRACE" == "trace" ]]
+    then
+        EXTRA_ARGS="$EXTRA_ARGS -pPrintInstruction"
+    fi
 
     TIMEOUT=90
-    echo timeout --foreground $TIMEOUT $ETISS etiss.elf -i$EXTRA_DIR/memsegs.ini
-    timeout --foreground $TIMEOUT $ETISS etiss.elf -i$EXTRA_DIR/memsegs.ini > etiss_out.txt 2> etiss_err.txt
+    timeout --foreground $TIMEOUT $ETISS etiss.elf -i$EXTRA_DIR/memsegs.ini $EXTR_ARGS > etiss_out.txt 2> etiss_err.txt
     echo $? > etiss_exit.txt
     cat etiss_out.txt | sed -rn 's/CPU Cycles \(estimated\): (.*)$/\1/p' > etiss_instructions.txt
     echo "" > etiss_notes.txt
@@ -76,5 +90,5 @@ fi
 
 for bench in "${BENCHMARKS[@]}"
 do
-    common_run $SIM $bench
+    common_run $SIM $bench $TRACE
 done

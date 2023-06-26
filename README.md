@@ -44,7 +44,7 @@ A recent version of ETISS is required (with semihosting support and RV32IM[ACFD]
 ### Run Simulations
 
 ```sh
-./scripts/run_taclebench.sh [ovpsim|etiss] [all|sequential/petrinet|...]
+./scripts/run_taclebench.sh [ovpsim|etiss] [all|sequential/petrinet|...] [notrace|trace]
 ```
 
 ### Misc
