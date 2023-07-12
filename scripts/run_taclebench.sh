@@ -105,6 +105,7 @@ function etiss_run() {
     echo "" > etiss_notes.txt
     cat etiss_out.txt | grep "Error" >> etiss_notes.txt
     cat etiss_out.txt | grep "Warning" >> etiss_notes.txt
+    cat etiss_out.txt | grep "EXCEPTION" >> etiss_notes.txt
 }
 
 if [[ "$BENCH" == "all" ]]
