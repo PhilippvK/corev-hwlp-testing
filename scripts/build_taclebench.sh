@@ -14,6 +14,8 @@ DEFAULT_CLANG=$(pwd)/install/llvm/bin/clang
 export CLANG=${CLANG:-$DEFAULT_CLANG}
 DEFAULT_GCC=$(pwd)/install/rv32im_ilp32/bin/riscv32-unknown-elf-gcc
 export GCC=${GCC:-$DEFAULT_GCC}
+DEFAULT_OBJCOPY=$(pwd)/install/rv32im_ilp32/bin/riscv32-unknown-elf-objcopy
+export OBJCOPY=${OBJCOPY:-$DEFAULT_OBJCOPY}
 export GCC_TOOLCHAIN=$(dirname $(dirname $GCC))
 export SYSROOT=$GCC_TOOLCHAIN/$(basename $GCC | cut -d- -f1-3)
 # export GCC=$(pwd)/corev-openhw-gcc-ubuntu2004-20230504/bin/riscv32-corev-elf-gcc
@@ -51,6 +53,8 @@ function common_build() {
     $CLANG *.c -march=$ARCH -mabi=ilp32 -O$OPT -c --target=riscv32 --gcc-toolchain=$GCC_TOOLCHAIN --sysroot=$SYSROOT $EXTRA_ARGS
     echo "Linking..."
     ${SIM}_link
+    echo "Hexdumping..."
+    $OBJCOPY -O verilog $SIM.elf $SIM.elf.hex
     echo "Done."
     echo "======================="
     cd - > /dev/null
