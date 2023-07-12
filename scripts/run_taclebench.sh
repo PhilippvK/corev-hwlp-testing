@@ -7,6 +7,14 @@ SIM=${1:-ovpsim}
 BENCH=${2:-all}
 TRACE=${3:-notrace}
 
+export PRINT=${PRINT:-0}
+export VERBOSE=${VERBOSE:-0}
+
+if [[ "$VERBOSE" == "1" ]]
+then
+    set -x
+fi
+
 export EXTRA_DIR=$(pwd)/extra
 DEFAULT_OVPSIM=$(pwd)/install/ovpsim/bin/Linux64/riscvOVPsimCOREV.exe
 export OVPSIM=${OVPSIM:-$DEFAULT_OVPSIM}
@@ -50,8 +58,14 @@ function ovpsim_run() {
         EXTRA_ARGS="$EXTRA_ARGS --trace --tracefile ovpsim_trace.txt"
     fi
 
-    timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --finishonopcode 0 $EXTRA_ARGS > ovpsim_out.txt 2> ovpsim_err.txt
-    echo $? > ovpsim_exit.txt
+    if [[ "$PRINT" == "1" ]]
+    then
+        timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --finishonopcode 0 $EXTRA_ARGS > >(tee ovpsim_out.txt) 2> >(tee ovpsim_err.txt)
+        echo $? > ovpsim_exit.txt
+    else
+        timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --finishonopcode 0 $EXTRA_ARGS > ovpsim_out.txt 2> ovpsim_err.txt
+        echo $? > ovpsim_exit.txt
+    fi
     cat ovpsim_out.txt | sed -rn 's/Info   Simulated instructions: (.*)$/\1/p' | sed 's/,//g' > ovpsim_instructions.txt
     echo "" > ovpsim_notes.txt
     cat ovpsim_out.txt | grep "Error" >> ovpsim_notes.txt
@@ -72,8 +86,14 @@ function etiss_run() {
     fi
 
     TIMEOUT=90
-    timeout --foreground $TIMEOUT $ETISS etiss.elf -i$ETISS_INI $EXTR_ARGS > etiss_out.txt 2> etiss_err.txt
-    echo $? > etiss_exit.txt
+    if [[ "$PRINT" == "1" ]]
+    then
+        timeout --foreground $TIMEOUT $ETISS etiss.elf -i$ETISS_INI $EXTRA_ARGS > >(tee etiss_out.txt) 2> >(tee etiss_err.txt)
+        echo $? > etiss_exit.txt
+    else
+        timeout --foreground $TIMEOUT $ETISS etiss.elf -i$ETISS_INI $EXTRA_ARGS > etiss_out.txt 2> etiss_err.txt
+        echo $? > etiss_exit.txt
+    fi
     cat etiss_out.txt | sed -rn 's/CPU Cycles \(estimated\): (.*)$/\1/p' > etiss_instructions.txt
     echo "" > etiss_notes.txt
     cat etiss_out.txt | grep "Error" >> etiss_notes.txt
