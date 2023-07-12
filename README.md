@@ -33,6 +33,17 @@ First, fetch the submodules using `git submodule update --init`.
 
 A recent version of ETISS is required (with semihosting support and RV32IM[ACFD]XCoreV architecture) needs to be installed. Furthermore please point the `ETISS` environment variable to the location of the `run_helper.sh` script, e.g.: `export ETISS=/path/to/etiss/repo/build/bin/run_helper.sh`
 
+### CV32E40P Testbench
+
+```sh
+./scripts/setup_verilator.sh
+# Alternative:
+# export VERILATOR=/path/to/verilator/exe
+
+./scripts/setup_cv32e40p.sh
+```
+
+
 ## Usage
 
 ### Compile Programs

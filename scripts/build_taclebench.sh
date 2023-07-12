@@ -21,6 +21,8 @@ export SYSROOT=$GCC_TOOLCHAIN/$(basename $GCC | cut -d- -f1-3)
 # export GCC=$(pwd)/corev-openhw-gcc-ubuntu2004-20230504/bin/riscv32-corev-elf-gcc
 # export GCC_TOOLCHAIN=$(pwd)/corev-openhw-gcc-ubuntu2004-20230504/
 # export SYSROOT=$(pwd)/corev-openhw-gcc-ubuntu2004-20230504/riscv32-corev-elf
+COREVVERIF_DIR=$(pwd)/core-v-verif
+export CV32E40P_SW_DIR=$COREVVERIF_DIR/cv32e40p/bsp
 
 function common_build() {
     SIM=$1
@@ -58,6 +60,10 @@ function common_build() {
     echo "Done."
     echo "======================="
     cd - > /dev/null
+}
+
+function cv32e40p_link() {
+    $GCC ${CV32E40P_SW_DIR}/crt0.S ${CV32E40P_SW_DIR}/syscalls.c ${CV32E40P_SW_DIR}/vectors.S ${CV32E40P_SW_DIR}/handlers.S *.o -o cv32e40p.elf -march=rv32im_zicsr -T $CV32E40P_SW_DIR/link.ld -nostartfiles
 }
 
 function ovpsim_link() {

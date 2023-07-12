@@ -22,6 +22,7 @@ DEFAULT_OVPSIM=$(pwd)/install/ovpsim/bin/Linux64/riscvOVPsimCOREV.exe
 export OVPSIM=${OVPSIM:-$DEFAULT_OVPSIM}
 DEFAULT_ETISS_INI=$EXTRA_DIR/memsegs.ini
 ETISS_INI=${ETISS_INI:-$DEFAULT_ETISS_INI}
+COREVVERIF_DIR=$(pwd)/core-v-verif
 
 common_run() {
     SIM=$1
@@ -51,6 +52,29 @@ common_run() {
     cd - > /dev/null
 }
 
+function cv32e40p_run() {
+    TIMEOUT=900
+    TRACE=$1
+    EXTRA_ARGS=""
+    if [[ "$TRACE" == "trace" ]]
+    then
+        echo "Trace not yet supported"
+    fi
+
+    TESTBENCH=$COREVVERIF_DIR/cv32e40p/sim/core/simulation_results/hello-world/verilator_executable
+    timeout --foreground $TIMEOUT $TESTBENCH "+firmware=cv32e40p.elf.hex" $EXTRA_ARGS > cv32e40p_out.txt 2> cv32e40p_err.txt
+    echo $? > cv32e40p_exit.txt
+    INSTRUCTIONS=$(cat log_insn.csv | cut -d, -f2 | uniq | wc -l)
+    echo $INSTRUCTIONS > cv32e40p_instructions.txt
+    CYCLES=$(tail -1 log_insn.csv | cut -d, -f1)
+    echo $CYCLES > cv32e40p_cycles.txt
+    CPI=$(echo "scale=2; $CYCLES/$INSTRUCTIONS" | bc)
+    echo $CPI > cv32e40p_cpi.txt
+    echo "" > cv32e40p_notes.txt
+    cat cv32e40p_out.txt | grep "Error" >> cv32e40p_notes.txt
+    cat cv32e40p_out.txt | grep "EXCEPTION" >> cv32e40p_notes.txt
+    cat cv32e40p_out.txt | grep "FAILURE" >> cv32e40p_notes.txt
+}
 function ovpsim_run() {
     TIMEOUT=90
     TRACE=$1
