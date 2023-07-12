@@ -1,9 +1,6 @@
 [submodule "tacle-bench"]
 	path = tacle-bench
 	url = https://github.com/tacle/tacle-bench.git
-[submodule "polybench"]
-	path = polybench
-	url = https://github.com/MatthiasJReisinger/PolyBenchC-4.2.1.git
 [submodule "verilator"]
 	path = verilator
 	url = https://github.com/verilator/verilator.git
