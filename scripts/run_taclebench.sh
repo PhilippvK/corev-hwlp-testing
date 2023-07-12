@@ -15,6 +15,8 @@ then
     set -x
 fi
 
+export ETISS_ARGS=${ETISS_ARGS:-""}
+
 export EXTRA_DIR=$(pwd)/extra
 DEFAULT_OVPSIM=$(pwd)/install/ovpsim/bin/Linux64/riscvOVPsimCOREV.exe
 export OVPSIM=${OVPSIM:-$DEFAULT_OVPSIM}
@@ -73,13 +75,18 @@ function ovpsim_run() {
 }
 
 function etiss_run() {
-    if [[ ! -f $ETISS ]]
+    if [[ -z $ETISS ]]
     then
         echo "ETISS enviornment variable not set!"
         exit 1
     fi
+    if [[ ! -f $ETISS ]]
+    then
+        echo "ETISS not found: $ETISS!"
+        exit 1
+    fi
     TRACE=$1
-    EXTRA_ARGS=""
+    EXTRA_ARGS=${ETISS_ARGS}
     if [[ "$TRACE" == "trace" ]]
     then
         EXTRA_ARGS="$EXTRA_ARGS -pPrintInstruction"
