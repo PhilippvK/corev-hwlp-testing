@@ -43,7 +43,10 @@ common_run() {
     fi
     ${SIM}_run $TRACE
     echo "EXIT=$(cat ${SIM}_exit.txt)"
-    echo "INSTRUCTIONS=$(cat ${SIM}_instructions.txt)"
+    test ! -f ${SIM}_instructions.txt || echo "INSTRUCTIONS=$(cat ${SIM}_instructions.txt)"
+    test ! -f ${SIM}_cycles.txt || echo "CYCLES=$(cat ${SIM}_cycles.txt)"
+    test ! -f ${SIM}_cpi.txt || echo "CPI=$(cat ${SIM}_cpi.txt)"
+
     echo "#lines $(wc -l ${SIM}_out.txt)" >> ${SIM}_notes.txt
     echo "#lines $(wc -l ${SIM}_err.txt)" >> ${SIM}_notes.txt
     echo -e "NOTES=\n$(cat ${SIM}_notes.txt)"
