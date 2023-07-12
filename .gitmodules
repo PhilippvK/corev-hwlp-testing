@@ -13,3 +13,9 @@
 [submodule "polybench"]
 	path = polybench
 	url = https://github.com/MatthiasJReisinger/PolyBenchC-4.2.1.git
+[submodule "mibench"]
+	path = mibench
+	url = https://github.com/embecosm/mibench.git
+[submodule "embench-iot"]
+	path = embench-iot
+	url = https://github.com/embench/embench-iot.git
