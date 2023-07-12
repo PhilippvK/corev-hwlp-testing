@@ -52,7 +52,7 @@ function common_build() {
         return 1
     fi
     echo "Compiling..."
-    $CLANG *.c -march=$ARCH -mabi=ilp32 -O$OPT -c --target=riscv32 --gcc-toolchain=$GCC_TOOLCHAIN --sysroot=$SYSROOT $EXTRA_ARGS
+    $CLANG *.c -march=$ARCH -mabi=ilp32 -O$OPT -c --target=riscv32 --gcc-toolchain=$GCC_TOOLCHAIN --sysroot=$SYSROOT $EXTRA_ARGS -g
     echo "Linking..."
     ${SIM}_link
     echo "Hexdumping..."
