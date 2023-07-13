@@ -23,6 +23,8 @@ export OVPSIM=${OVPSIM:-$DEFAULT_OVPSIM}
 export DEFAULT_ETISS_INI=$EXTRA_DIR/memsegs.ini
 export ETISS_INI=${ETISS_INI:-$DEFAULT_ETISS_INI}
 export EXAMPLES_DIR=$DIR/examples
+export POLYBENCH_DIR=$DIR/polybench
+export MIBENCH_DIR=$DIR/mibench
 export DEFAULT_OBJDUMP=$DIR/install/llvm/bin/llvm-objdump
 export OBJDUMP_ARGS="--mattr=+xcvmac,+xcvmem,+xcvbi,+xcvalu,+xcvbitmanip,+xcvsimd,+xcvhwlp"
 export OBJDUMP=${OBJDUMP:-$DEFAULT_OBJDUMP}
@@ -57,6 +59,15 @@ function print_head() {
     echo "-----------------------"
 }
 
+function polybench_dump() {
+    SIM=$1
+    BENCH_NAME=$2
+    BENCH_DIR=$POLYBENCH_DIR/$BENCH_NAME
+    print_head polybench $BENCH_NAME $BENCH_DIR $SIM
+    cd $BENCH_DIR
+    common_dump $@
+    cd - > /dev/null
+}
 
 function taclebench_dump() {
     SIM=$1
@@ -98,7 +109,35 @@ function taclebench_build() {
     BENCH_DIR=$TACLE_BENCH_DIR/$BENCH_NAME
     print_head taclebench $BENCH_NAME $BENCH_DIR $SIM ${ARCH}_${MODE}
     cd $BENCH_DIR
-    common_build $@
+    common_build $SIM $ARCH $MODE *.c
+    cd - > /dev/null
+}
+
+function polybench_build() {
+    SIM=$1
+    BENCH_NAME=$2
+    ARCH=$3
+    MODE=$4
+    BENCH_DIR=$POLYBENCH_DIR/$BENCH_NAME
+    print_head polybench $BENCH_NAME $BENCH_DIR $SIM ${ARCH}_${MODE}
+    cd $BENCH_DIR
+    common_build $SIM $ARCH $MODE -I $POLYBENCH_DIR/utilities -I $BENCH_DIR $POLYBENCH_DIR/utilities/polybench.c
+    cd - > /dev/null
+    # utilities/polybench.c
+}
+
+function mibench_build() {
+    SIM=$1
+    BENCH_NAME=$2
+    ARCH=$3
+    MODE=$4
+    BENCH_DIR=$MIBENCH_DIR/$BENCH_NAME
+    print_head mibench $BENCH_NAME $BENCH_DIR $SIM ${ARCH}_${MODE}
+    cd $BENCH_DIR
+    SRCS=*.c
+    common_compile $SIM $ARCH $MODE $SRCS
+    common_link $SIM *.o -o $SIM.elf
+    common_hexdump $SIM.elf $SIM.elf.hex
     cd - > /dev/null
 }
 
@@ -110,15 +149,25 @@ function examples_build() {
     BENCH_DIR=$EXAMPLES_DIR/$BENCH_NAME
     print_head examples $BENCH_NAME $BENCH_DIR $SIM ${ARCH}_${MODE}
     cd $BENCH_DIR
-    common_build $@
+    common_build $SIM $ARCH $MODE
     cd - > /dev/null
 }
 
 function common_build() {
     SIM=$1
-    BENCH_NAME=$2
-    ARCH=$3
-    MODE=$4
+    ARCH=$2
+    MODE=$3
+    shift 3
+    common_compile $SIM $ARCH $MODE *.c $@
+    common_link $SIM *.o -o $SIM.elf
+    common_hexdump $SIM.elf $SIM.elf.hex
+}
+
+function common_compile() {
+    SIM=$1
+    ARCH=$2
+    MODE=$3
+    shift 3
     EXTRA_ARGS=$COMPILE_ARGS
     if [[ "$MODE" == "release" ]]
     then
@@ -135,25 +184,54 @@ function common_build() {
         return 1
     fi
     echo "Compiling..."
-    $CLANG *.c -march=$ARCH -mabi=ilp32 -O$OPT -c --target=riscv32 --gcc-toolchain=$GCC_TOOLCHAIN --sysroot=$SYSROOT $EXTRA_ARGS -g
-    echo "Linking..."
-    ${SIM}_link
-    echo "Hexdumping..."
-    $OBJCOPY -O verilog $SIM.elf $SIM.elf.hex
-    echo "Done."
-    echo "======================="
+    $CLANG -march=$ARCH -mabi=ilp32 -O$OPT -c --target=riscv32 --gcc-toolchain=$GCC_TOOLCHAIN --sysroot=$SYSROOT $EXTRA_ARGS -g $@
 }
 
+function common_link() {
+    SIM=$1
+    shift
+    echo "Linking..."
+    ${SIM}_link -march=rv32im_zicsr $@ -lm
+}
+
+function common_hexdump() {
+    echo "Hexdumping..."
+    $OBJCOPY -O verilog $@
+}
+
+
 function cv32e40p_link() {
-    $GCC ${CV32E40P_SW_DIR}/crt0.S ${CV32E40P_SW_DIR}/syscalls.c ${CV32E40P_SW_DIR}/vectors.S ${CV32E40P_SW_DIR}/handlers.S *.o -o cv32e40p.elf -march=rv32im_zicsr -T $CV32E40P_SW_DIR/link.ld -nostartfiles
+    $GCC ${CV32E40P_SW_DIR}/crt0.S ${CV32E40P_SW_DIR}/syscalls.c ${CV32E40P_SW_DIR}/vectors.S ${CV32E40P_SW_DIR}/handlers.S -T $CV32E40P_SW_DIR/link.ld -nostartfiles $@
 }
 
 function ovpsim_link() {
-    $GCC *.o -o ovpsim.elf
+    $GCC $@
 }
 
 function etiss_link() {
-    $GCC $EXTRA_DIR/crt0.S $EXTRA_DIR/trap_handler.c --specs=$EXTRA_DIR/etiss-semihost.specs -T $EXTRA_DIR/etiss.ld *.o -march=rv32im_zicsr -nostdlib -lc -lsemihost -lgcc -o etiss.elf
+    $GCC $EXTRA_DIR/crt0.S $EXTRA_DIR/trap_handler.c --specs=$EXTRA_DIR/etiss-semihost.specs -T $EXTRA_DIR/etiss.ld -nostdlib -lc -lsemihost -lgcc $@
+}
+
+polybench_run() {
+    SIM=$1
+    BENCH_NAME=$2
+    TRACE=$3
+    BENCH_DIR=$POLYBENCH_DIR/$BENCH_NAME
+    print_head polybench $BENCH_NAME $BENCH_DIR $SIM ${TRACE}
+    cd $BENCH_DIR
+    common_run $@
+    cd - > /dev/null
+}
+
+examples_run() {
+    SIM=$1
+    BENCH_NAME=$2
+    TRACE=$3
+    BENCH_DIR=$EXAMPLES_DIR/$BENCH_NAME
+    print_head examples $BENCH_NAME $BENCH_DIR $SIM ${TRACE}
+    cd $BENCH_DIR
+    common_run $@
+    cd - > /dev/null
 }
 
 taclebench_run() {
@@ -186,9 +264,6 @@ common_run() {
     echo "#lines $(wc -l ${SIM}_out.txt)" >> ${SIM}_notes.txt
     echo "#lines $(wc -l ${SIM}_err.txt)" >> ${SIM}_notes.txt
     echo -e "NOTES=\n$(cat ${SIM}_notes.txt)"
-    echo "Done."
-    echo "======================="
-    cd - > /dev/null
 }
 
 function cv32e40p_run() {
