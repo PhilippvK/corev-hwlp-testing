@@ -134,8 +134,8 @@ function mibench_build() {
     BENCH_DIR=$MIBENCH_DIR/$BENCH_NAME
     print_head mibench $BENCH_NAME $BENCH_DIR $SIM ${ARCH}_${MODE}
     cd $BENCH_DIR
-    SRCS=*.c
-    common_compile $SIM $ARCH $MODE $SRCS
+    SRCS=$(find . -maxdepth 1 -name "*.c" -not -name "*_large*")
+    common_compile $SIM $ARCH $MODE $SRCS -Wno-implicit-int -Wno-implicit-function-declaration
     common_link $SIM *.o -o $SIM.elf
     common_hexdump $SIM.elf $SIM.elf.hex
     cd - > /dev/null
@@ -223,6 +223,17 @@ polybench_run() {
     cd - > /dev/null
 }
 
+mibench_run() {
+    SIM=$1
+    BENCH_NAME=$2
+    TRACE=$3
+    BENCH_DIR=$MIBENCH_DIR/$BENCH_NAME
+    print_head mibench $BENCH_NAME $BENCH_DIR $SIM ${TRACE}
+    cd $BENCH_DIR
+    common_run $@
+    cd - > /dev/null
+}
+
 examples_run() {
     SIM=$1
     BENCH_NAME=$2
@@ -294,6 +305,7 @@ function ovpsim_run() {
     TIMEOUT=90
     TRACE=$1
     EXTRA_ARGS=$OVPSIM_ARGS
+    OVPSIM_ARGV="101010101010"
     if [[ "$TRACE" == "trace" ]]
     then
         EXTRA_ARGS="$EXTRA_ARGS --trace --tracefile ovpsim_trace.txt"
@@ -301,10 +313,10 @@ function ovpsim_run() {
 
     if [[ "$PRINT" == "1" ]]
     then
-        timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --finishonopcode 0 $EXTRA_ARGS > >(tee ovpsim_out.txt) 2> >(tee ovpsim_err.txt)
+        timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --finishonopcode 0 $EXTRA_ARGS --argv $OVPSIM_ARGV > >(tee ovpsim_out.txt) 2> >(tee ovpsim_err.txt)
         echo $? > ovpsim_exit.txt
     else
-        timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --finishonopcode 0 $EXTRA_ARGS > ovpsim_out.txt 2> ovpsim_err.txt
+        timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --finishonopcode 0 $EXTRA_ARGS --argv $OVPSIM_ARGV > ovpsim_out.txt 2> ovpsim_err.txt
         echo $? > ovpsim_exit.txt
     fi
     cat ovpsim_out.txt | sed -rn 's/Info   Simulated instructions: (.*)$/\1/p' | sed 's/,//g' > ovpsim_instructions.txt
