@@ -1,36 +1,9 @@
 #!/bin/bash
 
-
-TACLE_BENCH_DIR=$(pwd)/tacle-bench/bench
+source $(pwd)/scripts/common.sh
 
 SIM=${1:-ovpsim}
 BENCH=${2:-all}
-
-DEFAULT_OBJDUMP=$(pwd)/install/llvm/bin/llvm-objdump
-OBJDUMP_ARGS="--mattr=+xcvmac,+xcvmem,+xcvbi,+xcvalu,+xcvbitmanip,+xcvsimd,+xcvhwlp"
-export OBJDUMP=${OBJDUMP:-$DEFAULT_OBJDUMP}
-export COL=2
-
-
-function dump() {
-    SIM=$1
-    BENCH_NAME=$2
-    BENCH_DIR=$TACLE_BENCH_DIR/$BENCH_NAME
-    echo "======================="
-    echo "Benchmark: $BENCH_NAME"
-    echo "Directory: $BENCH_DIR"
-    echo "Simulator: $SIM"
-    echo "-----------------------"
-    cd $BENCH_DIR
-    echo "Dumping..."
-    $OBJDUMP $OBJDUMP_ARGS -d $SIM.elf > $SIM.dump
-    cat $SIM.dump | cut -f $COL | grep -v "<" | grep -v "Disassembly" | grep -v "file format" | sed '/^$/d' | sort | uniq -c | sort -h > $SIM.counts
-    cat $SIM.counts | grep "cv\." > $SIM.cvcounts
-    cat $SIM.cvcounts
-    echo "Done."
-    echo "======================="
-    cd - > /dev/null
-}
 
 if [[ "$BENCH" == "all" ]]
 then
@@ -44,5 +17,5 @@ fi
 
 for bench in "${BENCHMARKS[@]}"
 do
-    dump $SIM $bench
+    taclebench_dump $SIM $bench
 done

@@ -23,6 +23,11 @@ export OVPSIM=${OVPSIM:-$DEFAULT_OVPSIM}
 export DEFAULT_ETISS_INI=$EXTRA_DIR/memsegs.ini
 export ETISS_INI=${ETISS_INI:-$DEFAULT_ETISS_INI}
 export EXAMPLES_DIR=$DIR/examples
+export DEFAULT_OBJDUMP=$DIR/install/llvm/bin/llvm-objdump
+export OBJDUMP_ARGS="--mattr=+xcvmac,+xcvmem,+xcvbi,+xcvalu,+xcvbitmanip,+xcvsimd,+xcvhwlp"
+export OBJDUMP=${OBJDUMP:-$DEFAULT_OBJDUMP}
+export OBJDUMP_COL=${OBJDUMP_COL:-2}
+
 
 export ETISS_ARGS=${ETISS_ARGS:-""}
 export OVPSIM_ARGS=${OVPSIM_ARGS:-""}
@@ -51,6 +56,39 @@ function print_head() {
     echo "Details:   $EXTRA"
     echo "-----------------------"
 }
+
+
+function taclebench_dump() {
+    SIM=$1
+    BENCH_NAME=$2
+    BENCH_DIR=$TACLE_BENCH_DIR/$BENCH_NAME
+    print_head taclebench $BENCH_NAME $BENCH_DIR $SIM
+    cd $BENCH_DIR
+    common_dump $@
+    cd - > /dev/null
+}
+
+function examples_dump() {
+    SIM=$1
+    BENCH_NAME=$2
+    BENCH_DIR=$EXAMPLES_DIR/$BENCH_NAME
+    print_head examples $BENCH_NAME $BENCH_DIR $SIM
+    cd $BENCH_DIR
+    common_dump $@
+    cd - > /dev/null
+}
+
+function common_dump() {
+    SIM=$1
+    BENCH_NAME=$2
+    echo "Dumping..."
+    $OBJDUMP $OBJDUMP_ARGS -d $SIM.elf > $SIM.dump
+    echo "Counting..."
+    cat $SIM.dump | cut -f $OBJDUMP_COL | grep -v "<" | grep -v "Disassembly" | grep -v "file format" | sed '/^$/d' | sort | uniq -c | sort -h > $SIM.counts
+    cat $SIM.counts | grep "cv\." > $SIM.cvcounts
+    cat $SIM.cvcounts
+}
+
 
 function taclebench_build() {
     SIM=$1
