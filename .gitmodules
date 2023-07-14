@@ -19,3 +19,6 @@
 [submodule "embench-iot"]
 	path = embench-iot
 	url = https://github.com/embench/embench-iot.git
+[submodule "coremark"]
+	path = coremark
+	url = https://github.com/eembc/coremark.git
