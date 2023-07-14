@@ -62,6 +62,16 @@ function print_head() {
     echo "-----------------------"
 }
 
+function mibench_dump() {
+    SIM=$1
+    BENCH_NAME=$2
+    BENCH_DIR=$POLYBENCH_DIR/$BENCH_NAME
+    print_head mibench $BENCH_NAME $BENCH_DIR $SIM
+    cd $BENCH_DIR
+    common_dump $@
+    cd - > /dev/null
+}
+
 function coremark_dump() {
     SIM=$1
     BENCH_DIR=$COREMARK_DIR
