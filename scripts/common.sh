@@ -27,6 +27,7 @@ export ETISS_INI=${ETISS_INI:-$DEFAULT_ETISS_INI}
 export EXAMPLES_DIR=$DIR/examples
 export POLYBENCH_DIR=$DIR/polybench
 export MIBENCH_DIR=$DIR/mibench
+export COREMARK_DIR=$DIR/coremark
 export DEFAULT_OBJDUMP=$DIR/install/llvm/bin/llvm-objdump
 export OBJDUMP_ARGS="--mattr=+xcvmac,+xcvmem,+xcvbi,+xcvalu,+xcvbitmanip,+xcvsimd,+xcvhwlp"
 export OBJDUMP=${OBJDUMP:-$DEFAULT_OBJDUMP}
@@ -59,6 +60,15 @@ function print_head() {
     echo "Simulator: $SIM"
     echo "Details:   $EXTRA"
     echo "-----------------------"
+}
+
+function coremark_dump() {
+    SIM=$1
+    BENCH_DIR=$COREMARK_DIR
+    print_head coremark - $BENCH_DIR $SIM
+    cd $BENCH_DIR
+    common_dump $@
+    cd - > /dev/null
 }
 
 function polybench_dump() {
@@ -102,6 +112,16 @@ function common_dump() {
     cat $SIM.cvcounts
 }
 
+function coremark_build() {
+    SIM=$1
+    ARCH=$2
+    MODE=$3
+    BENCH_DIR=$COREMARK_DIR/
+    print_head coremark - $BENCH_DIR $SIM ${ARCH}_${MODE}
+    cd $BENCH_DIR
+    common_build $SIM $ARCH $MODE *.c -I$EXTRA_DIR -DITERATIONS=10 -DPERFORMANCE_RUN -DHAS_STDIO -DFLAGS_STR $EXTRA_DIR/core_portme.c -I$BENCH_DIR
+    cd - > /dev/null
+}
 
 function taclebench_build() {
     SIM=$1
@@ -222,6 +242,16 @@ function etiss_link() {
     $GCC $EXTRA_DIR/crt0.S $EXTRA_DIR/trap_handler.c --specs=$EXTRA_DIR/etiss-semihost.specs -T $EXTRA_DIR/etiss.ld -nostdlib -lc -lsemihost -lgcc $@
 }
 
+coremark_run() {
+    SIM=$1
+    TRACE=$2
+    BENCH_DIR=$COREMARK_DIR/
+    print_head coremark - $BENCH_DIR $SIM ${TRACE}
+    cd $BENCH_DIR
+    common_run $SIM $TRACE
+    cd - > /dev/null
+}
+
 polybench_run() {
     SIM=$1
     BENCH_NAME=$2
@@ -229,7 +259,7 @@ polybench_run() {
     BENCH_DIR=$POLYBENCH_DIR/$BENCH_NAME
     print_head polybench $BENCH_NAME $BENCH_DIR $SIM ${TRACE}
     cd $BENCH_DIR
-    common_run $@
+    common_run $SIM $TRACE
     cd - > /dev/null
 }
 
@@ -240,7 +270,7 @@ mibench_run() {
     BENCH_DIR=$MIBENCH_DIR/$BENCH_NAME
     print_head mibench $BENCH_NAME $BENCH_DIR $SIM ${TRACE}
     cd $BENCH_DIR
-    common_run $@
+    common_run $SIM $TRACE
     cd - > /dev/null
 }
 
@@ -251,7 +281,7 @@ examples_run() {
     BENCH_DIR=$EXAMPLES_DIR/$BENCH_NAME
     print_head examples $BENCH_NAME $BENCH_DIR $SIM ${TRACE}
     cd $BENCH_DIR
-    common_run $@
+    common_run $SIM $TRACE
     cd - > /dev/null
 }
 
@@ -262,14 +292,14 @@ taclebench_run() {
     BENCH_DIR=$TACLE_BENCH_DIR/$BENCH_NAME
     print_head taclebench $BENCH_NAME $BENCH_DIR $SIM ${TRACE}
     cd $BENCH_DIR
-    common_run $@
+    common_run $SIM $TRACE
     cd - > /dev/null
 }
 
 common_run() {
     SIM=$1
-    BENCH_NAME=$2
-    TRACE=$3
+    # BENCH_NAME=$2
+    TRACE=$2
     echo "Running..."
     if [[ ! -f "$SIM.elf" ]]
     then
