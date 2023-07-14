@@ -11,6 +11,8 @@ export DEFAULT_GCC=$DIR/install/rv32im_ilp32/bin/riscv32-unknown-elf-gcc
 export GCC=${GCC:-$DEFAULT_GCC}
 export DEFAULT_OBJCOPY=$DIR/install/rv32im_ilp32/bin/riscv32-unknown-elf-objcopy
 export OBJCOPY=${OBJCOPY:-$DEFAULT_OBJCOPY}
+export DEFAULT_SIZE=$DIR/install/rv32im_ilp32/bin/riscv32-unknown-elf-size
+export SIZE=${SIZE:-$DEFAULT_SIZE}
 export GCC_TOOLCHAIN=$(dirname $(dirname $GCC))
 export SYSROOT=$GCC_TOOLCHAIN/$(basename $GCC | cut -d- -f1-3)
 # export GCC=$DIR/corev-openhw-gcc-ubuntu2004-20230504/bin/riscv32-corev-elf-gcc
@@ -138,6 +140,7 @@ function mibench_build() {
     common_compile $SIM $ARCH $MODE $SRCS -Wno-implicit-int -Wno-implicit-function-declaration
     common_link $SIM *.o -o $SIM.elf
     common_hexdump $SIM.elf $SIM.elf.hex
+    common_size $SIM.elf ${SIM}_size.txt
     cd - > /dev/null
 }
 
@@ -153,6 +156,12 @@ function examples_build() {
     cd - > /dev/null
 }
 
+function common_size() {
+    ELF=$1
+    OUT=$2
+    $SIZE $ELF > $OUT
+}
+
 function common_build() {
     SIM=$1
     ARCH=$2
@@ -161,6 +170,7 @@ function common_build() {
     common_compile $SIM $ARCH $MODE *.c $@
     common_link $SIM *.o -o $SIM.elf
     common_hexdump $SIM.elf $SIM.elf.hex
+    common_size $SIM.elf ${SIM}_size.txt
 }
 
 function common_compile() {
