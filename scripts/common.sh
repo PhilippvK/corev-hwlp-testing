@@ -363,10 +363,10 @@ function ovpsim_run() {
 
     if [[ "$PRINT" == "1" ]]
     then
-        timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --finishonopcode 0 $EXTRA_ARGS --argv $OVPSIM_ARGV > >(tee ovpsim_out.txt) 2> >(tee ovpsim_err.txt)
+        timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --override riscvOVPsim/cpu/extension_CVE4P/mcountinhibit_reset=0 --finishonopcode 0 $EXTRA_ARGS --argv $OVPSIM_ARGV > >(tee ovpsim_out.txt) 2> >(tee ovpsim_err.txt)
         echo $? > ovpsim_exit.txt
     else
-        timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --finishonopcode 0 $EXTRA_ARGS --argv $OVPSIM_ARGV > ovpsim_out.txt 2> ovpsim_err.txt
+        timeout --foreground $TIMEOUT $OVPSIM --program ovpsim.elf --variant CV32E40P --processorname CVE4P --override riscvOVPsim/cpu/unaligned=T --override riscvOVPsim/cpu/pk/reportExitErrors=T --override riscvOVPsim/cpu/extension_CVE4P/mcountinhibit_reset=0 --finishonopcode 0 $EXTRA_ARGS --argv $OVPSIM_ARGV > ovpsim_out.txt 2> ovpsim_err.txt
         echo $? > ovpsim_exit.txt
     fi
     cat ovpsim_out.txt | sed -rn 's/Info   Simulated instructions: (.*)$/\1/p' | sed 's/,//g' > ovpsim_instructions.txt
