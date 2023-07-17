@@ -231,7 +231,7 @@ function common_link() {
     SIM=$1
     shift
     echo "Linking..."
-    ${SIM}_link -march=rv32im_zicsr $@ -lm
+    ${SIM}_link -march=rv32im_zicsr $@ -lm -lc
 }
 
 function common_hexdump() {
