@@ -49,13 +49,19 @@ A recent version of ETISS is required (with semihosting support and RV32IM[ACFD]
 ### Compile Programs
 
 ```sh
-./scripts/build_taclebench.sh [ovpsim|etiss] [all|sequential/petrinet|...] [rv32im|rv32im_xcvhwlp|...] [release|debug]
+./scripts/build_taclebench.sh [ovpsim|etiss|cv32e40p] [all|sequential/petrinet|...] [rv32im|rv32im_xcvhwlp|...] [release|debug]
+./scripts/build_polybench.sh [ovpsim|etiss|cv32e40p] [all|linear-algebra/solvers/gramschmidt|...] ...
+./scripts/build_mibench.sh [ovpsim|etiss|cv32e40p] [all|telecomm/FFT|...] ...
+./scripts/build_embench.sh [ovpsim|etiss|cv32e40p] [all|aha-mont64|...] ...
+./scripts/build_coremark.sh [ovpsim|etiss|cv32e40p] ...
 ```
 
 ### Run Simulations
 
 ```sh
-./scripts/run_taclebench.sh [ovpsim|etiss] [all|sequential/petrinet|...] [notrace|trace]
+./scripts/run_taclebench.sh [ovpsim|etiss|cv32e40p] [all|sequential/petrinet|...] [notrace|trace]
+./scripts/run_taclebench.sh [ovpsim|etiss|cv32r40p] [all|linear-algebra/solvers/gramschmidt|...] [notrace|trace]
+TODO
 ```
 
 ### Misc
