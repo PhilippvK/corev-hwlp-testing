@@ -339,18 +339,32 @@ function cv32e40p_run() {
     fi
 
     TESTBENCH=$COREVVERIF_DIR/cv32e40p/sim/core/simulation_results/hello-world/verilator_executable
-    timeout --foreground $TIMEOUT $TESTBENCH "+firmware=cv32e40p.elf.hex" $EXTRA_ARGS > cv32e40p_out.txt 2> cv32e40p_err.txt
-    echo $? > cv32e40p_exit.txt
-    INSTRUCTIONS=$(cat log_insn.csv | cut -d, -f2 | uniq | wc -l)
+    if [[ "$PRINT" == "1" ]]
+    then
+        timeout --foreground $TIMEOUT $TESTBENCH "+firmware=cv32e40p.elf.hex" $EXTRA_ARGS > >(tee cv32e40p_out.txt) 2> >(tee cv32e40p_err.txt)
+        echo $? > cv32e40p_exit.txt
+    else
+        timeout --foreground $TIMEOUT $TESTBENCH "+firmware=cv32e40p.elf.hex" $EXTRA_ARGS > cv32e40p_out.txt 2> cv32e40p_err.txt
+        echo $? > cv32e40p_exit.txt
+    fi
+    if [[ -f log_insn.csv ]]
+    then
+        INSTRUCTIONS=$(cat log_insn.csv | cut -d, -f2 | uniq | wc -l)
+        CYCLES=$(tail -1 log_insn.csv | cut -d, -f1)
+        CPI=$(echo "scale=2; $CYCLES/$INSTRUCTIONS" | bc)
+    else
+        INSTRUCTIONS=0
+        CYCLES=0
+        CPI=-1
+    fi
     echo $INSTRUCTIONS > cv32e40p_instructions.txt
-    CYCLES=$(tail -1 log_insn.csv | cut -d, -f1)
     echo $CYCLES > cv32e40p_cycles.txt
-    CPI=$(echo "scale=2; $CYCLES/$INSTRUCTIONS" | bc)
     echo $CPI > cv32e40p_cpi.txt
     echo "" > cv32e40p_notes.txt
     cat cv32e40p_out.txt | grep "Error" >> cv32e40p_notes.txt
     cat cv32e40p_out.txt | grep "EXCEPTION" >> cv32e40p_notes.txt
     cat cv32e40p_out.txt | grep "FAILURE" >> cv32e40p_notes.txt
+    cat cv32e40p_out.txt | grep "Errors detected" > cv32e40p_notes.txt
 }
 
 function ovpsim_run() {
@@ -375,6 +389,7 @@ function ovpsim_run() {
     echo "" > ovpsim_notes.txt
     cat ovpsim_out.txt | grep "Error" >> ovpsim_notes.txt
     cat ovpsim_out.txt | grep "Warning" >> ovpsim_notes.txt
+    cat ovpsim_out.txt | grep "Errors detected" > ovpsim_notes.txt
 }
 
 function etiss_run() {
@@ -409,4 +424,5 @@ function etiss_run() {
     cat etiss_out.txt | grep "Error" >> etiss_notes.txt
     cat etiss_out.txt | grep "Warning" >> etiss_notes.txt
     cat etiss_out.txt | grep "EXCEPTION" >> etiss_notes.txt
+    cat etiss_out.txt | grep "Errors detected" > etiss_notes.txt
 }
