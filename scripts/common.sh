@@ -116,6 +116,7 @@ function common_dump() {
     BENCH_NAME=$2
     echo "Dumping..."
     $OBJDUMP $OBJDUMP_ARGS -d $SIM.elf > $SIM.dump
+    $OBJDUMP $OBJDUMP_ARGS -S $SIM.elf > $SIM.srcdump
     echo "Counting..."
     cat $SIM.dump | cut -f $OBJDUMP_COL | grep -v "<" | grep -v "Disassembly" | grep -v "file format" | sed '/^$/d' | sort | uniq -c | sort -h > $SIM.counts
     cat $SIM.counts | grep "cv\." > $SIM.cvcounts
