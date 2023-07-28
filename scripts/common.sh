@@ -130,7 +130,7 @@ function coremark_build() {
     BENCH_DIR=$COREMARK_DIR/
     print_head coremark - $BENCH_DIR $SIM ${ARCH}_${MODE}
     cd $BENCH_DIR
-    common_build $SIM $ARCH $MODE *.c -I$EXTRA_DIR -DITERATIONS=10 -DPERFORMANCE_RUN -DHAS_STDIO -DFLAGS_STR $EXTRA_DIR/core_portme.c -I$BENCH_DIR
+    common_build $SIM $ARCH $MODE *.c -I$EXTRA_DIR -DITERATIONS=100000 -DPERFORMANCE_RUN -DHAS_STDIO -DFLAGS_STR $EXTRA_DIR/core_portme.c -I$BENCH_DIR
     cd - > /dev/null
 }
 
