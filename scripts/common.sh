@@ -226,13 +226,14 @@ function common_compile() {
     fi
     echo "Compiling..."
     $CLANG -march=$ARCH -mabi=ilp32 -O$OPT -c --target=riscv32 --gcc-toolchain=$GCC_TOOLCHAIN --sysroot=$SYSROOT $EXTRA_ARGS -g $@
+    # $GCC -march=$ARCH -mabi=ilp32 -O$OPT -c $EXTRA_ARGS -g $@
 }
 
 function common_link() {
     SIM=$1
     shift
     echo "Linking..."
-    ${SIM}_link -march=rv32im_zicsr $@ -lm -lc
+    ${SIM}_link -march=rv32im_zicsr $@ -lm -lc -lgcc -g
 }
 
 function common_hexdump() {
