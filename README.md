@@ -53,6 +53,7 @@ A recent version of ETISS is required (with semihosting support and RV32IM[ACFD]
 ./scripts/build_polybench.sh [ovpsim|etiss|cv32e40p] [all|linear-algebra/solvers/gramschmidt|...] ...
 ./scripts/build_mibench.sh [ovpsim|etiss|cv32e40p] [all|telecomm/FFT|...] ...
 ./scripts/build_embench.sh [ovpsim|etiss|cv32e40p] [all|aha-mont64|...] ...
+./scripts/build_examples.sh [ovpsim|etiss|cv32e40p] [all|hello_world|...] ...
 ./scripts/build_coremark.sh [ovpsim|etiss|cv32e40p] ...
 ```
 
@@ -60,16 +61,30 @@ A recent version of ETISS is required (with semihosting support and RV32IM[ACFD]
 
 ```sh
 ./scripts/run_taclebench.sh [ovpsim|etiss|cv32e40p] [all|sequential/petrinet|...] [notrace|trace]
-./scripts/run_taclebench.sh [ovpsim|etiss|cv32r40p] [all|linear-algebra/solvers/gramschmidt|...] [notrace|trace]
-TODO
+./scripts/run_polybench.sh [ovpsim|etiss|cv32e40p] [all|linear-algebra/solvers/gramschmidt|...] ...
+./scripts/run_mibench.sh [ovpsim|etiss|cv32e40p] [all|telecom/FFT|...] ...
+./scripts/run_embench.sh [ovpsim|etiss|cv32e40p] [all|aha-mont64|...] ...
+./scripts/run_examples.sh [ovpsim|etiss|cv32e40p] [all|hello_world|...] ...
+./scripts/run_coremark.sh [ovpsim|etiss|cv32e40p] ...
 ```
 
 ### Misc
 
 Optional!
 
+Dumping assembly:
 ```sh
-./scripts/dump_taclebench.sh [ovpsim|etiss] [all|sequential/petrinet|...]
-tail tacle-bench/bench/*/*/*_instructions.txt
-./scripts/clean_taclebench.sh
+./scripts/dump_[taclebench|polybench|mibench|embench|examples|coremark].sh [ovpsim|etiss|cv32e40p] [all|sequential/petrinet|...]
+```
+
+Investigating generated artifacts:
+```sh
+tail tacle-bench/bench/*/*/*_instructions.txt  # Number of executed instructions
+tail tacle-bench/bench/*/*/*_exit.txt  # Exit code (if reported by the target) -> should be zero!
+...
+```
+
+Cleaning up repos:
+```sh
+./scripts/clean.sh [all|tacle-bench|embench-iot|polybench|mibench|coremark]
 ```
