@@ -392,7 +392,7 @@ function ovpsim_run() {
     echo "" > ovpsim_notes.txt
     cat ovpsim_out.txt | grep "Error" >> ovpsim_notes.txt
     cat ovpsim_out.txt | grep "Warning" >> ovpsim_notes.txt
-    cat ovpsim_out.txt | grep "Errors detected" > ovpsim_notes.txt
+    cat ovpsim_out.txt | grep "Errors detected" >> ovpsim_notes.txt
 }
 
 function etiss_run() {
@@ -425,7 +425,7 @@ function etiss_run() {
     cat etiss_out.txt | sed -rn 's/CPU Cycles \(estimated\): (.*)$/\1/p' > etiss_instructions.txt
     echo "" > etiss_notes.txt
     cat etiss_out.txt | grep "Error" >> etiss_notes.txt
-    cat etiss_out.txt | grep "Warning" >> etiss_notes.txt
+    cat etiss_out.txt | grep "Warning" | grep -v "Multi values" >> etiss_notes.txt
     cat etiss_out.txt | grep "EXCEPTION" >> etiss_notes.txt
-    cat etiss_out.txt | grep "Errors detected" > etiss_notes.txt
+    cat etiss_out.txt | grep "Errors detected" >> etiss_notes.txt
 }
