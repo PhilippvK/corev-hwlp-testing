@@ -2,7 +2,7 @@
 
 set -e
 
-DL_URL=https://github.com/openhwgroup/riscv-ovpsim-corev/archive/refs/heads/v20230425.zip
+DL_URL=https://github.com/openhwgroup/riscv-ovpsim-corev/archive/refs/heads/v20230724.zip
 
 INSTALL_DIR=$(pwd)/install
 
