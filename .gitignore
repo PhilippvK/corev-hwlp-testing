@@ -4,3 +4,7 @@
 *.bin
 *.hex
 *.o
+*.dump
+*.srcdump
+*.counts
+*.cvcounts
