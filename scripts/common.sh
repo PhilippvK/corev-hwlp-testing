@@ -28,6 +28,7 @@ export EXAMPLES_DIR=$DIR/examples
 export POLYBENCH_DIR=$DIR/polybench
 export MIBENCH_DIR=$DIR/mibench
 export COREMARK_DIR=$DIR/coremark
+export SYN_BENCH_DIR=$DIR/syn
 export DEFAULT_OBJDUMP=$DIR/install/llvm/bin/llvm-objdump
 export OBJDUMP_ARGS="--mattr=+xcvmac,+xcvmem,+xcvbi,+xcvalu,+xcvbitmanip,+xcvsimd,+xcvhwlp"
 export OBJDUMP=${OBJDUMP:-$DEFAULT_OBJDUMP}
@@ -101,6 +102,16 @@ function taclebench_dump() {
     cd - > /dev/null
 }
 
+function syn_dump() {
+    SIM=$1
+    BENCH_NAME=$2
+    BENCH_DIR=$SYN_BENCH_DIR/$BENCH_NAME
+    print_head syn $BENCH_NAME $BENCH_DIR $SIM
+    cd $BENCH_DIR
+    common_dump $@
+    cd - > /dev/null
+}
+
 function examples_dump() {
     SIM=$1
     BENCH_NAME=$2
@@ -141,6 +152,17 @@ function taclebench_build() {
     MODE=$4
     BENCH_DIR=$TACLE_BENCH_DIR/$BENCH_NAME
     print_head taclebench $BENCH_NAME $BENCH_DIR $SIM ${ARCH}_${MODE}
+    cd $BENCH_DIR
+    common_build $SIM $ARCH $MODE *.c
+    cd - > /dev/null
+}
+function syn_build() {
+    SIM=$1
+    BENCH_NAME=$2
+    ARCH=$3
+    MODE=$4
+    BENCH_DIR=$SYN_BENCH_DIR/$BENCH_NAME
+    print_head syn $BENCH_NAME $BENCH_DIR $SIM ${ARCH}_${MODE}
     cd $BENCH_DIR
     common_build $SIM $ARCH $MODE *.c
     cd - > /dev/null
@@ -303,6 +325,17 @@ taclebench_run() {
     TRACE=$3
     BENCH_DIR=$TACLE_BENCH_DIR/$BENCH_NAME
     print_head taclebench $BENCH_NAME $BENCH_DIR $SIM ${TRACE}
+    cd $BENCH_DIR
+    common_run $SIM $TRACE
+    cd - > /dev/null
+}
+
+syn_run() {
+    SIM=$1
+    BENCH_NAME=$2
+    TRACE=$3
+    BENCH_DIR=$SYN_BENCH_DIR/$BENCH_NAME
+    print_head syn $BENCH_NAME $BENCH_DIR $SIM ${TRACE}
     cd $BENCH_DIR
     common_run $SIM $TRACE
     cd - > /dev/null
