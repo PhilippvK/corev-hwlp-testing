@@ -6,7 +6,8 @@
 	url = https://github.com/verilator/verilator.git
 [submodule "cv32e40p"]
 	path = cv32e40p
-	url = https://github.com/openhwgroup/cv32e40p.git
+	# url = https://github.com/openhwgroup/cv32e40p.git
+	url = https://github.com/PhilippvK/cv32e40p.git
 [submodule "core-v-verif"]
 	path = core-v-verif
 	url = git@gitlab.lrz.de:de-tum-ei-eda-esl/llvm/core-v-verif.git
