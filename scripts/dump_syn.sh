@@ -8,7 +8,7 @@ BENCH=${2:-all}
 if [[ "$BENCH" == "all" ]]
 then
     # all
-    BENCHMARKS=(dot32 dot32_hwlp)
+    BENCHMARKS=(dot32 dot32_hwlp add32 add32_hwlp write_1d write_1d_hwlp write_2d write_2d_hwlp simple_loop simple_loop_hwlp)
 
 else
     # single
