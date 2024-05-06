@@ -10,7 +10,8 @@ Using benchmark `sequential/dijkstra` for demonstration, however this also shows
 1. Checkout `hwlp-bug-blockend` branch
 
 ```bash
-git clone git@gitlab.lrz.de:de-tum-ei-eda-esl/llvm/hwlp-testing.git
+git clone https://github.com/PhilippvK/corev-hwlp-testing.git
+cd corev-hwlp-testing
 git checkout hwlp-bug-blockend
 git submodule update --init --recursive
 ```
