@@ -77,7 +77,7 @@ git submodule update --init --recursive
 
 The hwlp version of the program exits way to early (reduction of executed instructions > 99%).
 
-5. Workaround: Revert COMMIT in `cv32e40p` RTL
+5. Workaround: Revert https://github.com/openhwgroup/cv32e40p/commit/14716209ec6d09ad2d31af4a5c36a094a65d767f in `cv32e40p` RTL
 
 ```bash
 git -C cv32e40p cherry-pick 8e29b89d1b3c8451bac36545a4d5b154ad0a1ab8
