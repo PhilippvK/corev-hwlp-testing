@@ -2,7 +2,7 @@
 
 set -e
 
-DL_URL=https://syncandshare.lrz.de/dl/fiVEqbY3A7PCSDrw6fvCKu/rv32im_ilp32.tar.xz
+DL_URL=https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/rv32im_ilp32.tar.xz
 
 INSTALL_DIR=$(pwd)/install
 

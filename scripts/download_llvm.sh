@@ -2,7 +2,7 @@
 
 set -e
 
-DL_URL=https://syncandshare.lrz.de/dl/fiFUYGac2R8AXSGrvxSXx2/llvm.tar.xz
+DL_URL=https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/corev/Archive/corev_llvm_custom.tar.xz
 
 INSTALL_DIR=$(pwd)/install
 
