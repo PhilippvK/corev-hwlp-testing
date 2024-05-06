@@ -1,5 +1,8 @@
 # Intructions for reproduce HWLP-related bugs
 
+**Prerequisites:**
+- Ubuntu 20.04 (to use pre-built binaries for gcc & llvm)
+
 ## Block end off by one instruction
 
 Using benchmark `sequential/dijkstra` for demonstration, however this also shows up for at least one more program.
