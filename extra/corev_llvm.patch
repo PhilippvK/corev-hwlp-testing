@@ -1,0 +1,14 @@
+diff --git a/llvm/lib/Support/RISCVISAInfo.cpp b/llvm/lib/Support/RISCVISAInfo.cpp
+index c9a2ad8f3ca7..f2e7cd07ae33 100644
+--- a/llvm/lib/Support/RISCVISAInfo.cpp
++++ b/llvm/lib/Support/RISCVISAInfo.cpp
+@@ -110,7 +110,8 @@ static const RISCVSupportedExtension SupportedExtensions[] = {
+     {"xcvmac", RISCVExtensionVersion{1, 0}},
+     {"xcvelw", RISCVExtensionVersion{1, 0}},
+     {"xcvalu", RISCVExtensionVersion{1, 0}},
+-    {"xcvmem", RISCVExtensionVersion{1, 0}}
++    {"xcvmem", RISCVExtensionVersion{1, 0}},
++    {"xcvhwlp", RISCVExtensionVersion{1, 0}}
+ };
+ 
+ static const RISCVSupportedExtension SupportedExperimentalExtensions[] = {
