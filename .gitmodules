@@ -10,7 +10,7 @@
 	url = https://github.com/PhilippvK/cv32e40p.git
 [submodule "core-v-verif"]
 	path = core-v-verif
-	url = git@gitlab.lrz.de:de-tum-ei-eda-esl/llvm/core-v-verif.git
+	url = https://github.com/PhilippvK/core-v-verif.git
 [submodule "polybench"]
 	path = polybench
 	url = https://github.com/MatthiasJReisinger/PolyBenchC-4.2.1.git
