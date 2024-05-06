@@ -18,8 +18,8 @@ git submodule update --init --recursive
 2. Setup dependencies
 
 ```bash
-./scripts/download_llvm.sh  # Build from source: ./scripts/build_llvm.sh
-./scripts/download_gcc.sh
+./scripts/download_llvm.sh  # Build from source: ./scripts/setup_llvm.sh
+./scripts/download_gcc.sh  # Build from source: ./scripts/setup_gcc.sh
 ./scripts/setup_verilator.sh
 ./scripts/setup_cv32e40p.sh
 ```
